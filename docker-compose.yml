@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  quiz-backend:
+    image: quiz-backend:v1.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./assets/state.json:/root/assets/state.json

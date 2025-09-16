@@ -1,0 +1,28 @@
+[
+  {
+    "id": -2,
+    "answer": "example answer",
+    "score": 100,
+    "penalty": 50,
+    "penalty_try_count": 3,
+    "per_user_answers": {}
+  },
+  {
+    "id": 1,
+    "answer": "example answer",
+    "score": 100,
+    "penalty": 50,
+    "penalty_try_count": 3,
+    "per_user_answers": {
+      "username1": "salam1",
+      "username2": "salam2"
+    }
+  },
+  {
+    "id": 2,
+    "answer": "example answer2",
+    "score": 60,
+    "penalty": 20,
+    "penalty_try_count": 1
+  }
+]
