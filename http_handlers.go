@@ -86,11 +86,14 @@ func loginHandler(c *gin.Context) {
 		return
 	}
 
+	// Determine if we're running on HTTPS
+	isHTTPS := c.Request.TLS != nil || c.Request.Header.Get("X-Forwarded-Proto") == "https"
+	
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     jwtCookieName,
 		Value:    token,
 		HttpOnly: true,
-		Secure:   true, // Set to false for HTTP (change to true if using HTTPS)
+		Secure:   isHTTPS, // Set based on actual protocol
 		SameSite: http.SameSiteNoneMode, // Allow cross-site cookies
 		Path:     "/",
 		Expires:  exp,
