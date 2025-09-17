@@ -8,7 +8,7 @@ import (
 const (
 	// configuration
 	jwtSecret               = "replace-with-strong-secret"
-	jwtCookieName           = "quiz_token"
+	jwtCookieName           = "Quiz-Token"
 	jwtExpiration           = 24 * time.Hour
 	persistenceStateAbsPath = "./assets/state.json"
 	usersFilePath           = "./assets/users.json"

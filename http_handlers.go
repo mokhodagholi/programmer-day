@@ -43,7 +43,7 @@ func CORSMiddleware() gin.HandlerFunc {
 			// Don't set Access-Control-Allow-Credentials for wildcard origins
 		}
 		
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With, Cookie")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With, Cookie, Quiz-Token")
 		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
 		if c.Request.Method == "OPTIONS" {
@@ -99,15 +99,15 @@ func loginHandler(c *gin.Context) {
 		Expires:  exp,
 	})
 
-	c.JSON(http.StatusOK, baseResponse{OK: true, Description: "login successful"})
+	c.JSON(http.StatusOK, baseResponse{OK: true, Description: token})
 }
 
 // Middleware: validate JWT from cookie and put claims in headers for downstream
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		cookie, err := c.Cookie(jwtCookieName)
-		if err != nil {
+		cookie := c.Request.Header.Get(jwtCookieName)
+		if cookie == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, baseResponse{OK: false, Description: "missing auth token"})
 			return
 		}
