@@ -15,7 +15,30 @@ import (
 // CORS middleware to handle cross-origin requests
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
+		origin := c.Request.Header.Get("Origin")
+		
+		// Allow specific origins for credentials
+		allowedOrigins := []string{
+			"https://hafkhan.vercel.app",
+			"http://localhost:3000", // for local development
+			"http://localhost:5173", // for Vite dev server
+		}
+		
+		// Check if origin is allowed
+		allowed := false
+		for _, allowedOrigin := range allowedOrigins {
+			if origin == allowedOrigin {
+				allowed = true
+				break
+			}
+		}
+		
+		if allowed {
+			c.Header("Access-Control-Allow-Origin", origin)
+		} else {
+			c.Header("Access-Control-Allow-Origin", "*")
+		}
+		
 		c.Header("Access-Control-Allow-Credentials", "true")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
@@ -64,8 +87,8 @@ func loginHandler(c *gin.Context) {
 		Name:     jwtCookieName,
 		Value:    token,
 		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteLaxMode,
+		Secure:   false, // Set to false for HTTP (change to true if using HTTPS)
+		SameSite: http.SameSiteNoneMode, // Allow cross-site cookies
 		Path:     "/",
 		Expires:  exp,
 	})
