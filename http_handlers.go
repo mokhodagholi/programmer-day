@@ -251,6 +251,54 @@ func promptHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, promptResponse{Result: result})
 }
 
+func getUserAllHandler(c *gin.Context) {
+	stateMu.RLock()
+	defer stateMu.RUnlock()
+
+	var usersInfo []UserAllInfo
+
+	// Iterate through all users in the state
+	for username, userState := range state.Users {
+		var solvedQuestions []SolvedQuestion
+
+		// Check each question for this user
+		for questionID, questionState := range userState.PerQuestion {
+			// Check if the question was solved (has at least one correct attempt)
+			if questionState.AttemptHistory.Solved() {
+				// Find the first correct attempt to get the solve time
+				var solvedAt time.Time
+				for _, attempt := range questionState.AttemptHistory {
+					if attempt.Correct {
+						solvedAt = attempt.At
+						break
+					}
+				}
+
+				// Get the question score
+				question, exists := questionsByID[questionID]
+				score := 0
+				if exists {
+					score = question.Score
+				}
+
+				solvedQuestions = append(solvedQuestions, SolvedQuestion{
+					QuestionID: questionID,
+					SolvedAt:   solvedAt,
+					Score:      score,
+				})
+			}
+		}
+
+		usersInfo = append(usersInfo, UserAllInfo{
+			Username:        username,
+			TotalScore:      userState.TotalScore,
+			SolvedQuestions: solvedQuestions,
+		})
+	}
+
+	c.JSON(http.StatusOK, GetAllUsersResponse{Users: usersInfo})
+}
+
 func RegisterHandlers() *http.Server {
 	r := gin.Default()
 
@@ -263,6 +311,7 @@ func RegisterHandlers() *http.Server {
 		auth.POST("/submit_answer", submitAnswerHandler)
 		auth.GET("/user", userHandler)
 		auth.POST("/prompt", promptHandler)
+		auth.GET("/users", getUserAllHandler)
 	}
 
 	srv := &http.Server{
