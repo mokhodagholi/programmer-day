@@ -33,14 +33,17 @@ func CORSMiddleware() gin.HandlerFunc {
 			}
 		}
 		
+		// When using credentials, we must specify the exact origin, not "*"
 		if allowed {
 			c.Header("Access-Control-Allow-Origin", origin)
+			c.Header("Access-Control-Allow-Credentials", "true")
 		} else {
+			// For non-allowed origins, don't set credentials and use wildcard
 			c.Header("Access-Control-Allow-Origin", "*")
+			// Don't set Access-Control-Allow-Credentials for wildcard origins
 		}
 		
-		c.Header("Access-Control-Allow-Credentials", "true")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With, Cookie")
 		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
 		if c.Request.Method == "OPTIONS" {
@@ -87,7 +90,7 @@ func loginHandler(c *gin.Context) {
 		Name:     jwtCookieName,
 		Value:    token,
 		HttpOnly: true,
-		Secure:   false, // Set to false for HTTP (change to true if using HTTPS)
+		Secure:   true, // Set to false for HTTP (change to true if using HTTPS)
 		SameSite: http.SameSiteNoneMode, // Allow cross-site cookies
 		Path:     "/",
 		Expires:  exp,
